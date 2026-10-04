@@ -1,0 +1,43 @@
+CREATE TABLE clean_encounters AS
+SELECT
+  encounter_id::INT,
+  patient_nbr::INT,
+  NULLIF(race, '?')                          AS race,
+  NULLIF(gender, 'Unknown/Invalid')          AS gender,
+  age                                        AS age_group,
+  SUBSTRING(age FROM '\[(\d+)-')::INT + 5    AS age_midpoint,
+  admission_type_id::INT,
+  discharge_disposition_id::INT,
+  admission_source_id::INT,
+  time_in_hospital::INT,
+  NULLIF(payer_code, '?')                    AS payer_code,
+  NULLIF(medical_specialty, '?')             AS medical_specialty,
+  num_lab_procedures::INT,
+  num_procedures::INT,
+  num_medications::INT,
+  number_outpatient::INT,
+  number_emergency::INT,
+  number_inpatient::INT,
+  NULLIF(diag_1, '?')                        AS diag_1,
+  NULLIF(diag_2, '?')                        AS diag_2,
+  NULLIF(diag_3, '?')                        AS diag_3,
+  number_diagnoses::INT,
+  max_glu_serum,
+  a1cresult,
+  metformin, repaglinide, nateglinide, chlorpropamide, glimepiride,
+  acetohexamide, glipizide, glyburide, tolbutamide, pioglitazone,
+  rosiglitazone, acarbose, miglitol, troglitazone, tolazamide, examide,
+  citoglipton, insulin, glyburide_metformin, glipizide_metformin,
+  glimepiride_pioglitazone, metformin_rosiglitazone, metformin_pioglitazone,
+  change,
+  diabetesmed,
+  readmitted
+FROM stg_diabetes;
+
+SELECT COUNT(*)                                    AS total_rows,
+       COUNT(*) FILTER (WHERE race IS NULL)        AS race_null,
+       COUNT(*) FILTER (WHERE gender IS NULL)      AS gender_null,
+       COUNT(*) FILTER (WHERE medical_specialty IS NULL) AS specialty_null,
+       MIN(age_midpoint)                           AS min_age,
+       MAX(age_midpoint)                           AS max_age
+FROM clean_encounters;
